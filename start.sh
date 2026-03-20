@@ -118,12 +118,36 @@ start_server() {
     ./cursor2api-go
 }
 
+# 检查端口占用并在需要时清理
+check_port() {
+    # 如果 .env 存在，从中获取端口号，否则使用默认值 8002
+    PORT_TO_CHECK=8002
+    if [ -f .env ]; then
+        ENV_PORT=$(grep "^PORT=" .env | cut -d '=' -f2)
+        if [ ! -z "$ENV_PORT" ]; then
+            PORT_TO_CHECK=$ENV_PORT
+        fi
+    fi
+
+    # 检查是否有进程占用该端口
+    if command -v lsof &> /dev/null; then
+        PID=$(lsof -t -i :$PORT_TO_CHECK)
+        if [ ! -z "$PID" ]; then
+            echo -e "${YELLOW}⚠️  检测到端口 $PORT_TO_CHECK 已被占用 (PID: $PID)，正在清理...${NC}"
+            kill -9 $PID &> /dev/null || true
+            sleep 1
+            echo -e "${GREEN}✅ 端口 $PORT_TO_CHECK 已清理${NC}"
+        fi
+    fi
+}
+
 # 主函数
 main() {
     print_header
     check_go
     check_nodejs
     setup_env
+    check_port
     build_app
     show_info
     start_server
