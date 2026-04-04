@@ -413,7 +413,7 @@ func modelConfigsInit() {
 			Provider:      "Google",
 			MaxTokens:     100000,
 			ContextWindow: 100000,
-			CursorModel:   "google/gemini-3-flash",
+			CursorModel:   "anthropic/claude-sonnet-4.6",
 		},
 		"claude-sonnet-4.6": {
 			ID:            "claude-sonnet-4.6",
